@@ -2,22 +2,22 @@ angular.module('drf_auth.token', [])
   .factory('httpInterceptor', function httpInterceptor($q, $window, $location, $state) {
     return function (promise) {
       var success = function (response) {
-        return response;
+        return promise.resolve(response);
       };
 
       var error = function (response) {
         if (response.status === 401) {
+          console.log('User not authed, redirecting to login');
           // user is not authenticated. stow the state they wanted before you
           // send them to the signin state, so you can return them when you're done
           $rootScope.returnToState = $rootScope.toState;
           $rootScope.returnToStateParams = $rootScope.toStateParams;
 
-          // now, send them to the signin state so they can log in
-          $state.go('signin');
+          // now, send them to the login state so they can log in
           $state.go('login');
         }
 
-        return $q.reject(response);
+        return promise.reject(response);
       };
 
       return promise.then(success, error);
@@ -27,43 +27,49 @@ angular.module('drf_auth.token', [])
   .factory('api', function ($http, $cookies) {
     return {
       init: function (token) {
+        console.log('settting access token', token || $cookies.token);
         $http.defaults.headers.common['X-Access-Token'] = token || $cookies.token;
       }
     };
   })
 
-  .factory('Auth', ['Base64', '$http', '$rootScope', '$location', '$window', '$state', 'BACKEND_SERVER', function (Base64, $http, $rootScope, $location, $window, $state, BACKEND_SERVER) {
+  // Note: You should inject this to your app.run() to get Auth set up as early
+  // as possible.
+  .factory('Auth', function (Base64, $http, $rootScope, $location, $window, $state, $q, BACKEND_SERVER) {
     // initialize to whatever is in the cookie, if anything
-    $http.defaults.headers.common['Authorization'] = 'Token ' + localStorage.getItem('token');
-
-    var success_function = function (data, status, headers, config) {
-
-      var token = data['token'];
-      localStorage.setItem('token', token);
-      localStorage.setItem('username', data['username']);
-      $http.defaults.headers.common.Authorization = 'Token ' + token;
+    if (localStorage.getItem('token')) {
+      $http.defaults.headers.common['Authorization'] = 'Token ' + localStorage.getItem('token');
       $rootScope.loggedIn = true;
-      console.log('login successful, setting token, redirecting', $rootScope.loggedIn, $window.location.href);
-      // TODO(pcsforeducation) move to controller
-      //$state.transitionTo('posts', {}, { reload: true });
-      $window.location.href = $window.location.href.replace('#/login', '#/posts');
-      $window.location.reload();
-    };
-
-    var error_function = function (data, status, headers, config) {
-      console.log('login error', status, headers);
-    };
-
+    } else {
+      $rootScope.loggedIn = false;
+    }
+    console.log('User logged in: ', $rootScope.loggedIn);
+    var deferred = $q.defer();
     return {
-      setCredentials: function (scope, BACKEND_SERVER, credentials) {
-        var encoded = Base64.encode(credentials['username'] + ':' + credentials['password']);
-        $http({
-          url: BACKEND_SERVER + 'token\/',
-          method: "GET",
+      setCredentials: function (credentials) {
+        console.log('creds', credentials)
+        var encoded = Base64.encode(credentials['username'] + ':' +
+          credentials['password']);
+
+        console.log(BACKEND_SERVER + 'token\/');
+        $http.get(BACKEND_SERVER + 'token\/', {
           headers: {
             'Authorization': 'Basic ' + encoded
           }
-        }).success(success_function).error(error_function);
+        }).success(function (data) {
+          // Successfully logged in, save token, return success to caller
+          var token = data['token'];
+          localStorage.setItem('token', token);
+          localStorage.setItem('username', data['username']);
+          $http.defaults.headers.common.Authorization = 'Token ' + token;
+          $rootScope.loggedIn = true;
+          deferred.resolve();
+        }).error(function (data, status, headers) {
+          // Login failed
+          console.log('login error', data, status, headers);
+          deferred.reject();
+        });
+        return deferred.promise;
       },
       clearCredentials: function () {
         document.execCommand("ClearAuthenticationCache");
@@ -72,7 +78,7 @@ angular.module('drf_auth.token', [])
         $rootScope.loggedIn = false;
       }
     };
-  }])
+  })
 
   .factory('Base64', function () {
     var keyStr = 'ABCDEFGHIJKLMNOP' +
@@ -157,16 +163,5 @@ angular.module('drf_auth.token', [])
         return output;
       }
     };
-  })
-  .service('Session', function () {
-    this.create = function (sessionId, userId, token) {
-      this.id = sessionId;
-      this.username = username;
-    };
-    this.destroy = function () {
-      this.id = null;
-      this.username = null;
-      token = null;
-    };
-    return this;
   });
+

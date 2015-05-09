@@ -1,4 +1,12 @@
 {
-  "name": "inCrowd",
-  "app_id": ""
+  "name": "SlasherTraxx",
+  "app_id": "364e7843",
+  "gulpStartupTasks": [
+    "sass",
+    "watch"
+  ],
+  "watchPatterns": [
+    "www/**/*",
+    "!www/lib/**/*"
+  ]
 }

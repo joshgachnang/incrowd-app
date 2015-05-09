@@ -28,6 +28,13 @@
   "resolutions": {
     "angular-animate": "1.3.x",
     "angular-sanitize": "1.3.13",
-    "angular": "~1.x"
+    "angular": "~1.x",
+    "angular-material": "~0.8.3"
+  },
+  "dependencies": {
+    "angular-django-rest-resource": "~1.0.3",
+    "ngCordova": "~0.1.15-alpha",
+    "angular-material": "~0.8.3",
+    "hammerjs": "~2.0.4"
   }
 }
