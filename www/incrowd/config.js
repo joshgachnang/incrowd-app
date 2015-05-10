@@ -2,9 +2,14 @@
 
 angular.module('incrowd', [])
 
+  .constant('INCROWD_EVENTS', {
+    'subscribe': 'SUBSCRIPTION_SUCCEEDED',
+    'chat_message': 'CHAT_MESSAGE'
+  })
+
   .constant('ENV', 'development')
 
-  .constant('BACKEND_SERVER', 'http://docker:8000/api/v1/')
+  .constant('BACKEND_SERVER', 'http://192.168.1.6:8000/api/v1/')
 
   .constant('PUSHER_CHANNEL', 'private-incrowd-dev')
 
@@ -12,5 +17,5 @@ angular.module('incrowd', [])
 
   .constant('PUSHER_PRESENCE', 'presence-incrowd-dev')
 
-  .constant('GCM_ID', 'aaa')
+  .constant('GCM_ID', '445022270472') // REPLACE THIS WITH YOURS FROM GCM CONSOLE - also in the project URL like: https://console.developers.google.com/project/434205989073
 ;

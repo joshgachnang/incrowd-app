@@ -43,12 +43,14 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
   width:100%;
 }
 
-.post .item-avatar {
+.post .item-avatar ,
+.comment .item-avatar {
   width: 64px;
   padding: 0;
 }
 
-.post .content {
+.post .content,
+.comment .content{
   margin-left: 64px;
 }
 
@@ -61,4 +63,34 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 .add-post i {
   font-size: 300%;
   font-weight: bolder;
+}
+
+.comment {
+    min-height: 72px;
+    white-space: normal;
+}
+
+.post .since {
+  position: absolute;
+  color: #888;
+  top: 0;
+  right: 0;
+}
+
+.post .comment-button {
+  padding: 0 5px;
+  margin-left: 10px;
+}
+
+.post .category-button {
+  padding: 0 5px;
+
+}
+
+.chat .bar-footer {
+  height: 44px;
+}
+
+.chat-input label {
+  width: 100%;
 }

@@ -4,6 +4,10 @@
   </md-button>
   <ion-content>
     <div class="list">
+      <ion-refresher
+          pulling-text="Pull to refresh..."
+          on-refresh="doRefresh()">
+      </ion-refresher>
       <post ng-repeat="post in posts"></post>
     </div>
   </ion-content>

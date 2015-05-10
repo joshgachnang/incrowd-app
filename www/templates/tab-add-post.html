@@ -1,16 +1,40 @@
 <ion-view view-title="Add Post">
-<div class="list">
-  <label class="item item-input">
-    <span class="input-label">Username</span>
-    <input type="text">
-  </label>
-  <label class="item item-input">
-    <span class="input-label">Password</span>
-    <input type="password">
-  </label>
-  <label class="item item-input">
-    <span class="input-label">Password</span>
-    <input type="password">
-  </label>
-</div>
+  <ion-content class="padding">
+    <div class="list">
+      <form ng-submit="new_post_submit()">
+        <!--<label>What's up?</label>-->
+        <!--<input ng-model="post.title"-->
+        <!--class="long" focus-me="focus_input">-->
+        <!--</md-input-container>-->
+        <!--<md-input-container>-->
+        <!--<label>URL</label>-->
+        <!--<input ng-model="post.url" class="long">-->
+        <!--</md-input-container>-->
+        <!---->
+
+        <label class="item item-input">
+          <input ng-model="post.title" type="text" placeholder="What's up?">
+        </label>
+        <label class="item item-input">
+          <input ng-model="post.url" type="password" placeholder="URL">
+        </label>
+        <label class="item item-input item-select">
+          <div class="input-label">
+            Category
+          </div>
+          <select ng-model="post.category"
+                  ng-options="category.id as category.name for category in categories">
+            <option value="">-- choose category --</option>
+          </select>
+        </label>
+        <md-checkbox ng-model="post.nsfw" aria-label="NSFW">
+          NSFW?
+        </md-checkbox>
+        <button class="button button-block button-positive" type="submit">
+          Submit
+        </button>
+      </form>
+    </div>
+  </ion-content>
+
 </ion-view>

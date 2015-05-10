@@ -1,0 +1,26 @@
+<div class="post item" layout="column">
+  <a class="item-avatar" ng-href="/#/tab/user/{{ ::post.user.username }}">
+    <img ng-src="{{ ::post.user.profile_pic }}">
+  </a>
+
+  <div class="content" flex="100">
+    <div class="since">5m</div>
+    <div flex="100">
+      <h2 class="title">{{ ::post.title }}</h2>
+    </div>
+    <div ng-if="post.type == 'image'">
+      <img ng-src="{{ ::post.url }}">
+    </div>
+    <div ng-if="post.type == 'youtube'">
+      YOUTUBE
+    </div>
+    <div flex="100" layout="row" layout-align="end center">
+      <button ng-click="go(post.id)" class="button button-small button-assertive category-button">
+        {{ ::post.category.name }}
+      </button>
+      <button ng-click="go(post.id)" class="button button-small button-assertive comment-button">
+        {{ post.comment_set.length }} <i class="ion-chatboxes"></i>
+      </button>
+    </div>
+  </div>
+</div>

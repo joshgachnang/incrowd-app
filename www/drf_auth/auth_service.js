@@ -47,7 +47,7 @@ angular.module('drf_auth.token', [])
     var deferred = $q.defer();
     return {
       setCredentials: function (credentials) {
-        console.log('creds', credentials)
+        console.log('creds', credentials);
         var encoded = Base64.encode(credentials['username'] + ':' +
           credentials['password']);
 

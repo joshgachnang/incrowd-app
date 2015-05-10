@@ -1,13 +1,20 @@
 angular.module('starter.services', [])
 
-  .service('Mobile', function ($rootScope, BACKEND_SERVER, djResource, GCM_ID) {
+  .service('Mobile', function ($rootScope, $log, $cordovaPush, $cordovaDialogs, NotificationRegister, djResource, BACKEND_SERVER, INCROWD_EVENTS, GCM_ID, Chats, Posts, Comments) {
     var Mobile = {};
 
     Mobile.resource = djResource(BACKEND_SERVER + 'mobile/');
 
-    $rootScope.$on('$cordovaPush:notificationReceived', function (event, notification) {
+    $log.debug('Mobile startup');
+
+
+    $rootScope.$on('$cordovaPush', function (event, notification) {
+      $log.error('PLAIN PUSH', event, notification);
+    });
+
+    $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
       if (notification.alert) {
-        console.log(notification.alert);
+        navigator.notification.alert(notification.alert);
       }
 
       if (notification.sound) {
@@ -16,11 +23,36 @@ angular.module('starter.services', [])
       }
 
       if (notification.badge) {
-        $cordovaPush.setBadgeNumber(notification.badge).then(function (result) {
+        $cordovaPush.setBadgeNumber(notification.badge).then(function(result) {
           // Success!
-        }, function (err) {
+        }, function(err) {
           // An error occurred. Show a message to the user
         });
+      }
+    });
+
+    $rootScope.$on('$cordovaPush:notificationReceived', function (event, notification) {
+      $log.debug('Notification event: ', event, notification);
+
+      if (notification.sound) {
+        var snd = new Media(event.sound);
+        snd.play();
+      }
+
+      //if (notification.badge) {
+      //  $cordovaPush.setBadgeNumber(notification.badge).then(function (result) {
+      //    // Success!
+      //  }, function (err) {
+      //    // An error occurred. Show a message to the user
+      //  });
+      //}
+
+      if (Mobile.isAndroid()) {
+        Mobile.handleAndroid(notification);
+      }
+
+      else {
+        Mobile.handleIOS(notification);
       }
     });
 
@@ -32,11 +64,12 @@ angular.module('starter.services', [])
 
     // Register
     Mobile.register = function (token) {
+      $log.info('Registering device: ' + token);
       var config = null;
 
       if (ionic.Platform.isAndroid()) {
         config = {
-          "senderID": GCM_ID // REPLACE THIS WITH YOURS FROM GCM CONSOLE - also in the project URL like: https://console.developers.google.com/project/434205989073
+          "senderID": GCM_ID
         };
       }
       else if (ionic.Platform.isIOS()) {
@@ -48,12 +81,12 @@ angular.module('starter.services', [])
       }
 
       $cordovaPush.register(config).then(function (result) {
-        console.log("Register success " + result);
-        $scope.registerDisabled = true;
+        $log.debug("Register success ", result);
+        Mobile.registerDisabled = true;
         // ** NOTE: Android regid result comes back in the pushNotificationReceived, only iOS returned here
         if (ionic.Platform.isIOS()) {
-          $scope.regId = result;
-          Mobile.storeDeviceToken($scope.regId);
+          Mobile.regId = result;
+          Mobile.storeDeviceToken(Mobile.regId);
         }
       });
     };
@@ -62,20 +95,22 @@ angular.module('starter.services', [])
     Mobile.handleAndroid = function (notification) {
       // ** NOTE: ** You could add code for when app is in foreground or not, or coming from coldstart here too
       //             via the console fields as shown.
-      console.log("In foreground " + notification.foreground + " Coldstart " + notification.coldstart);
+      $log.debug("In foreground " + notification.foreground + " Coldstart " + notification.coldstart);
       if (notification.event == "registered") {
-        $scope.regId = notification.regid;
-        Mobile.storeDeviceToken($scope.regId);
+        Mobile.regId = notification.regid;
+        Mobile.storeDeviceToken(Mobile.regId);
+        NotificationRegister.register(Mobile.regId);
       }
       else if (notification.event == "message") {
-        $cordovaDialogs.alert(notification.message, "Push Notification Received");
-        $scope.$apply(function () {
-          $scope.notifications.push(JSON.stringify(notification.message));
-        })
+        $log.info("Notification Message", notification);
+        Mobile.dispatch(notification);
       }
-      else if (notification.event == "error")
-        $cordovaDialogs.alert(notification.msg, "Push notification error event");
-      else $cordovaDialogs.alert(notification.event, "Push notification handler - Unprocessed Event");
+      else if (notification.event == "error") {
+        $log.error("Notifcation error", notification)
+      }
+      else {
+        $log.error("Notification other?", notification);
+      }
     };
 
     // IOS Notification Received Handler
@@ -97,9 +132,9 @@ angular.module('starter.services', [])
 
         if (notification.badge) {
           $cordovaPush.setBadgeNumber(notification.badge).then(function (result) {
-            console.log("Set badge success " + result)
+            $log.debug("Set badge success " + result);
           }, function (err) {
-            console.log("Set badge error " + err)
+            $log.debug("Set badge error " + err);
           });
         }
       }
@@ -114,64 +149,51 @@ angular.module('starter.services', [])
       }
     };
 
+    Mobile.dispatch = function (payload) {
+      // We have a push notification, send to the appropriate service
+      var type = payload.message_type;
+      if (type == INCROWD_EVENTS.chat_message) {
+        Chats.tickle(payload);
+      }
+      else if (type == INCROWD_EVENTS.post) {
+        Posts.tickle(payload);
+      }
+      else if (type == INCROWD_EVENTS.comment) {
+        Comments.tickle(payload);
+      }
+      else {
+        $log.error('unknown push event dispatch', payload);
+      }
+      //$rootScope.$broadcast(type, Notifications.presence.members);
+    };
+
     // GCM debugging
     $rootScope.$on('$cordovaPush:tokenReceived', function (event, data) {
-      console.log('Got token', data.token, data.platform);
+      $log.debug('Got token' + data.token + 'platform: ' + data.platform);
       // Do something with the token
     });
 
     Mobile.storeDeviceToken = function (regId) {
-
+      $log.debug('Storing device token', regId);
     };
 
     return Mobile;
   })
 
-  .factory('Chats', function () {
-    // Might use a resource here that returns a JSON array
-
-    // Some fake testing data
-    var chats = [{
-      id: 0,
-      name: 'Ben Sparrow',
-      lastText: 'You on your way?',
-      face: 'https://pbs.twimg.com/profile_images/514549811765211136/9SgAuHeY.png'
-    }, {
-      id: 1,
-      name: 'Max Lynx',
-      lastText: 'Hey, it\'s me',
-      face: 'https://avatars3.githubusercontent.com/u/11214?v=3&s=460'
-    }, {
-      id: 2,
-      name: 'Andrew Jostlin',
-      lastText: 'Did you get the ice cream?',
-      face: 'https://pbs.twimg.com/profile_images/491274378181488640/Tti0fFVJ.jpeg'
-    }, {
-      id: 3,
-      name: 'Adam Bradleyson',
-      lastText: 'I should buy a boat',
-      face: 'https://pbs.twimg.com/profile_images/479090794058379264/84TKj_qa.jpeg'
-    }, {
-      id: 4,
-      name: 'Perry Governor',
-      lastText: 'Look at my mukluks!',
-      face: 'https://pbs.twimg.com/profile_images/491995398135767040/ie2Z_V6e.jpeg'
-    }];
-
-    return {
-      all: function () {
-        return chats;
-      },
-      remove: function (chat) {
-        chats.splice(chats.indexOf(chat), 1);
-      },
-      get: function (chatId) {
-        for (var i = 0; i < chats.length; i++) {
-          if (chats[i].id === parseInt(chatId)) {
-            return chats[i];
-          }
-        }
-        return null;
-      }
+  .service('NotificationRegister', function ($cordovaDevice, $log, djResource, BACKEND_SERVER) {
+    var Reg = {};
+    Reg.resource = djResource(BACKEND_SERVER + 'register\/mobile\/');
+    Reg.register = function (token, platform) {
+      // token is the registration token
+      // platform is 'android' or 'ios'
+      var registration = new Reg.resource({
+        'register': token,
+        'platform': platform,
+        'device_id': $cordovaDevice.getDevice().uuid
+      });
+      var reg_return = registration.$save();
+      $log.debug("reg return", reg_return);
     };
+
+    return Reg;
   });

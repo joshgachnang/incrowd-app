@@ -1,0 +1,30 @@
+<ion-view view-title="{{ post.title }}">
+  <ion-content class="padding">
+    <div ng-if="post.url" class="list card">
+      {{ post.url }}
+    </div>
+    <div class="list comments">
+      <div class="item comment" ng-repeat="comment in post.comment_set" layout="column">
+        <a class="item-avatar" ng-href="/#/tab/user/{{ comment.user }}">
+          <img ng-src="{{ comment.user.profile_pic }}">
+        </a>
+
+        <div class="content" flex="100">{{ comment.text }}</div>
+      </div>
+
+    </div>
+    <div class="list list-inset">
+      <form ng-submit="comment()">
+        <label class="item item-input">
+          <i class="icon ion-search placeholder-icon"></i>
+          <input type="text"
+                 ng-model="formData.text"
+                 placeholder="Add Comment">
+        </label>
+        <button class="button button-block button-positive" ng-disabled="submitDisabled">
+          Comment
+        </button>
+      </form>
+    </div>
+  </ion-content>
+</ion-view>

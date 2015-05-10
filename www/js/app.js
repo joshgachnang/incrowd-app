@@ -6,7 +6,7 @@
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'ngCordova', 'ngCookies', 'ngMaterial', 'djangoRESTResources', 'starter.controllers', 'starter.services', 'pusher.service', 'drf_auth.token', 'incrowd'])
-  .run(function ($ionicPlatform, $rootScope, $state, $cordovaPush, Auth, GCM_ID, Mobile) {
+  .run(function ($ionicPlatform, $rootScope, $state, $log, $cordovaPush, Auth, Categories, Chats, GCM_ID, Mobile) {
     $ionicPlatform.ready(function () {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -17,13 +17,14 @@ angular.module('starter', ['ionic', 'ngCordova', 'ngCookies', 'ngMaterial', 'dja
         // org.apache.cordova.statusbar required
         StatusBar.styleLightContent();
       }
+      Mobile.register();
     });
 
     // Watch state changes, check if authed, if not, redirect to login
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
       // redirect only not authenticated and on auth required states
       var no_auth_states = ['login', 'signup'];
-      console.log('checking if auth state is in no_auth_states', toState.name, no_auth_states.indexOf(toState.name))
+      $log.debug('checking if auth state is in no_auth_states', toState.name, no_auth_states.indexOf(toState.name))
 
       if ($rootScope.loggedIn !== true && no_auth_states.indexOf(toState.name) === -1) {
         // user is not authenticated. stow the state they wanted before you
@@ -31,14 +32,14 @@ angular.module('starter', ['ionic', 'ngCordova', 'ngCookies', 'ngMaterial', 'dja
         $rootScope.returnToState = $rootScope.toState;
         $rootScope.returnToStateParams = $rootScope.toStateParams;
 
-        console.log('redirecting to login', toState.name, $rootScope.loggedIn);
+        $log.info('redirecting to login', toState.name, $rootScope.loggedIn);
         // now, send them to the signin state so they can log in
         $state.go('login'); // go to login
         e.preventDefault();
         //console.log('going')
       }
       else {
-        console.log('auth state is in no_auth_states', toState.name)
+        $log.debug('auth state is in no_auth_states', toState.name)
       }
     });
 
@@ -72,7 +73,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'ngCookies', 'ngMaterial', 'dja
       })
 
       .state('tab.post', {
-        url: '/post/:postId',
+        url: '/post/{postId:[0-9]{1,8}}',
         views: {
           'tab-dash': {
             templateUrl: 'templates/tab-post.html',
@@ -120,6 +121,16 @@ angular.module('starter', ['ionic', 'ngCordova', 'ngCookies', 'ngMaterial', 'dja
         }
       })
 
+      .state('tab.users', {
+        url: '/users',
+        views: {
+          'tab-users': {
+            templateUrl: 'templates/tab-users.html',
+            controller: 'UserCtrl'
+          }
+        }
+      })
+
       .state('login', {
         url: '/login',
         templateUrl: 'templates/login.html',
@@ -127,7 +138,8 @@ angular.module('starter', ['ionic', 'ngCordova', 'ngCookies', 'ngMaterial', 'dja
       });
 
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/tab/chats');
+    // TODO(pcsforeducation) switch to /tab/dash. Does infinite loop though.
+    $urlRouterProvider.otherwise('/login');
 
   })
 ;
