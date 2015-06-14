@@ -7,21 +7,13 @@ angular.module('starter.controllers', [])
       $scope.posts = Posts.posts;
     });
 
-    $scope.go = function (id) {
-      $state.go('tab.post', {postId: id});
-    };
-
     $scope.doRefresh = function () {
       $scope.posts = Posts.resource.query();
       $scope.$broadcast('scroll.refreshComplete');
     };
-
-    //$rootScope.$on('$newPost', function () {
-    //  console.log('new post apply', Posts.posts);
-    //});
   })
 
-  .controller('PostCtrl', function ($scope, $log, $mdToast, $stateParams, $state, Posts) {
+  .controller('PostCtrl', function ($scope, $rootScope, $log, $mdToast, $stateParams, $state, Posts) {
     "use strict";
 
     $scope.postId = $stateParams.postId;
@@ -40,9 +32,10 @@ angular.module('starter.controllers', [])
 
     $scope.comment = function () {
       $scope.submitDisabled = true;
+      $log.debug('submitting comment', $scope.formData);
       $scope.formData.$save().$promise.success(function () {
         cordova.plugins.Keyboard.close();
-        $scope.formData = new Posts.Comments.resource({id: $scope.postId});
+        $scope.formData = new Posts.Comments.resource({post: $scope.postId});
         toast('Comment successful!');
         $scope.submitDisabled = false;
       }).error(function (data) {
@@ -51,9 +44,11 @@ angular.module('starter.controllers', [])
       });
     };
 
-    $scope.go = function (id) {
-      $state.go('tab.post', {postId: id});
-    };
+    $rootScope.$on('$newComment', function (event, comment) {
+      // TODO(JoshNang): Should be using caching and binding here
+      $scope.post.comment_set.push(comment);
+      console.log('new comment apply', comment);
+    });
 
   })
 

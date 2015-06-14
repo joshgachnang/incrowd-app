@@ -136,7 +136,7 @@ angular.module('starter.services', [])
         Posts.tickle(payload.id);
       }
       else if (type === INCROWD_EVENTS.comment) {
-        Posts.Comments.tickle(payload.id);
+        Posts.commentsTickle(payload.id);
       }
       else if (type === INCROWD_EVENTS.notification) {
         console.log('notification')

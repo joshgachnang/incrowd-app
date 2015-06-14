@@ -91,6 +91,10 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
   height: 44px;
 }
 
+.chat .message {
+    white-space: normal;
+}
+
 .chat-input label {
   width: 100%;
 }

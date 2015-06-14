@@ -28,7 +28,6 @@ angular.module('incrowd')
     });
 
     Posts.tickle = function (id) {
-      console.log('Posts tickle', id);
       Posts.resource.get({'postId': id}).$promise.success(function (post) {
         Posts.posts.unshift(post);
         $rootScope.$broadcast('$newPost');
@@ -36,15 +35,18 @@ angular.module('incrowd')
     };
 
     Posts.commentsTickle = function (id) {
-      console.log('Comments tickle', id);
       Posts.Comments.resource.get({'commentId': id}).$promise.success(function (comment) {
         // Search for the matching post
-        Posts.posts.forEach(function(post) {
+        for (var i = 0, len = Posts.posts.length; i < len; i++) {
+          var post = Posts.posts[i];
           if (comment.post === post.id) {
             post.comment_set.push(comment);
+            $rootScope.$broadcast('$newComment', comment);
+            break
           }
-        });
-        $rootScope.$broadcast('$newComment');
+        }
+        $log.warn('Comments ticket failed for id', id);
+
       });
     };
 

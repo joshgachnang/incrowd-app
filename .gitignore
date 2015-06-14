@@ -7,3 +7,5 @@ plugins/
 www/frontend
 www/lib
 Certificates.p12
+# Should all be auto generated
+www/css/*

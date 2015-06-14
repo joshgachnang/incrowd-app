@@ -1,11 +1,12 @@
 <ion-view view-title="Chats" class="chat">
   <ion-content scroll="true">
     <ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right"
+      <ion-item class="item-remove-animate item-avatar item-icon-rightchat"
                 ng-repeat="chat in chats"
                 type="item-text-wrap">
         <img ng-src="{{chat.user.profile_pic}}">
-        <h2>{{chat.message}}</h2>
+        <h2 class="message">{{chat.message}}</h2>
+        <p>{{ chat.user.username }} | {{ chat.sent | DTSince }}</p>
         <ion-option-button class="button-assertive" ng-click="remove(chat)">
           Delete
         </ion-option-button>
