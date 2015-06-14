@@ -1,0 +1,49 @@
+<ion-view view-title="Users">
+  <ion-content class="padding">
+    <div class="list users">
+      <div class="item card" ng-repeat="user in users" layout="column">
+
+        <div class="item">
+          <h2>{{ user.username }}</h2>
+
+          <p ng-if="user.first_name || user.last_name">
+            ({{ user.first_name }} {{ user.last_name }})</p>
+        </div>
+
+        <div class="item item-body">
+          <img class="full-image" ng-src="{{ user.profile_pic }}">
+
+          <h5 ng-if="profile.tagline || profileForm.$visible">
+            <span class="icomoon icon-tag tagline_icon"></span><span
+              editable-text="profile.tagline" e-name="tagline"
+              e-placeholder="Tagline">{{ profile.tagline }}</span>
+          </h5>
+          <h5 ng-if="profile.location || profileForm.$visible">
+            <span class="icomoon icon-location location_icon"></span><span
+              editable-text="profile.location" e-name="location"
+              e-placeholder="Location">{{ profile.location }}</span>
+          </h5>
+          <h5>Last online: {{ profile.last_updated | DTSince }}</h5>
+
+          <!--<div class="pic">-->
+            <!--<img ng-src="{{ profile.profile_pic }}">-->
+          <!--</div>-->
+          <!--<div ng-if="profileForm.$visible" class="pic_form"-->
+               <!--class="large-6 large-offset-3 columns">-->
+              <!--<span editable-url="profile.profile_pic" e-name="pic"-->
+                    <!--e-placeholder="Profile Pic URL">{{ profile.profile_pic }}</span>-->
+          <!--</div>-->
+          <!--<h5 ng-if="profileForm.$visible">Email Notifications-->
+            <!--<select editable-select="profile.email_settings"-->
+                    <!--e-ng-options="s.value as s.text for s in statuses"-->
+                <!-->
+              <!--{{ showStatus(user) }}-->
+            <!--</select>-->
+          <!--</h5>-->
+
+        </div>
+
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

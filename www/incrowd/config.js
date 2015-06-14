@@ -4,7 +4,10 @@ angular.module('incrowd', [])
 
   .constant('INCROWD_EVENTS', {
     'subscribe': 'SUBSCRIPTION_SUCCEEDED',
-    'chat_message': 'CHAT_MESSAGE'
+    'chat': 'chat',
+    'post': 'post',
+    'comment': 'comment',
+    'notification': 'notification'
   })
 
   .constant('ENV', 'development')

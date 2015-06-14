@@ -1,57 +1,33 @@
 angular.module('starter.services', [])
 
-  .service('Mobile', function ($rootScope, $log, $cordovaPush, $cordovaDialogs, NotificationRegister, djResource, BACKEND_SERVER, INCROWD_EVENTS, GCM_ID, Chats, Posts, Comments) {
+  .service('Mobile', function ($rootScope, $log, $cordovaPush, $cordovaDialogs, NotificationRegister, djResource, BACKEND_SERVER, INCROWD_EVENTS, GCM_ID, Chats, Posts, Users) {
+    "use strict";
+
     var Mobile = {};
 
     Mobile.resource = djResource(BACKEND_SERVER + 'mobile/');
 
     $log.debug('Mobile startup');
 
-
-    $rootScope.$on('$cordovaPush', function (event, notification) {
-      $log.error('PLAIN PUSH', event, notification);
-    });
-
-    $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
-      if (notification.alert) {
-        navigator.notification.alert(notification.alert);
-      }
-
-      if (notification.sound) {
-        var snd = new Media(event.sound);
-        snd.play();
-      }
-
-      if (notification.badge) {
-        $cordovaPush.setBadgeNumber(notification.badge).then(function(result) {
-          // Success!
-        }, function(err) {
-          // An error occurred. Show a message to the user
-        });
-      }
-    });
-
+    //$rootScope.$on('$cordovaPush:notificationReceived', function (event, notification) {
+    //  //$log.debug('Notification event: ', event, notification);
+    //
+    //  if (Mobile.isAndroid()) {
+    //    Mobile.handleAndroid(notification);
+    //  }
+    //
+    //  else {
+    //    Mobile.handleIOS(notification);
+    //  }
+    //});
     $rootScope.$on('$cordovaPush:notificationReceived', function (event, notification) {
-      $log.debug('Notification event: ', event, notification);
+      console.log(JSON.stringify([notification]));
+      console.log("notification event", event);
 
-      if (notification.sound) {
-        var snd = new Media(event.sound);
-        snd.play();
-      }
-
-      //if (notification.badge) {
-      //  $cordovaPush.setBadgeNumber(notification.badge).then(function (result) {
-      //    // Success!
-      //  }, function (err) {
-      //    // An error occurred. Show a message to the user
-      //  });
-      //}
-
-      if (Mobile.isAndroid()) {
+      if (ionic.Platform.isAndroid()) {
         Mobile.handleAndroid(notification);
       }
-
-      else {
+      else if (ionic.Platform.isIOS()) {
         Mobile.handleIOS(notification);
       }
     });
@@ -77,12 +53,12 @@ angular.module('starter.services', [])
           "badge": "true",
           "sound": "true",
           "alert": "true"
-        }
+        };
       }
 
       $cordovaPush.register(config).then(function (result) {
         $log.debug("Register success ", result);
-        Mobile.registerDisabled = true;
+        //Mobile.registerDisabled = true;
         // ** NOTE: Android regid result comes back in the pushNotificationReceived, only iOS returned here
         if (ionic.Platform.isIOS()) {
           Mobile.regId = result;
@@ -95,18 +71,18 @@ angular.module('starter.services', [])
     Mobile.handleAndroid = function (notification) {
       // ** NOTE: ** You could add code for when app is in foreground or not, or coming from coldstart here too
       //             via the console fields as shown.
-      $log.debug("In foreground " + notification.foreground + " Coldstart " + notification.coldstart);
-      if (notification.event == "registered") {
+      $log.debug("In foreground " + notification.foreground + " Coldstart " + notification.coldstart + " Event " + notification.event);
+      if (notification.event === "registered") {
         Mobile.regId = notification.regid;
         Mobile.storeDeviceToken(Mobile.regId);
         NotificationRegister.register(Mobile.regId);
       }
-      else if (notification.event == "message") {
+      else if (notification.event === "message") {
         $log.info("Notification Message", notification);
-        Mobile.dispatch(notification);
+        Mobile.dispatch(notification.payload);
       }
-      else if (notification.event == "error") {
-        $log.error("Notifcation error", notification)
+      else if (notification.event === "error") {
+        $log.error("Notifcation error", notification);
       }
       else {
         $log.error("Notification other?", notification);
@@ -118,7 +94,7 @@ angular.module('starter.services', [])
       // The app was already open but we'll still show the alert and sound the tone received this way. If you didn't check
       // for foreground here it would make a sound twice, once when received in background and upon opening it from clicking
       // the notification when this code runs (weird).
-      if (notification.foreground == "1") {
+      if (notification.foreground === "1") {
         // Play custom audio if a sound specified.
         if (notification.sound) {
           var mediaSrc = $cordovaMedia.newMedia(notification.sound);
@@ -151,15 +127,19 @@ angular.module('starter.services', [])
 
     Mobile.dispatch = function (payload) {
       // We have a push notification, send to the appropriate service
-      var type = payload.message_type;
-      if (type == INCROWD_EVENTS.chat_message) {
-        Chats.tickle(payload);
+      var type = payload.type;
+      $log.info("Dispatch type: " + type, payload);
+      if (type === INCROWD_EVENTS.chat) {
+        Chats.tickle(payload.id);
       }
-      else if (type == INCROWD_EVENTS.post) {
-        Posts.tickle(payload);
+      else if (type === INCROWD_EVENTS.post) {
+        Posts.tickle(payload.id);
       }
-      else if (type == INCROWD_EVENTS.comment) {
-        Comments.tickle(payload);
+      else if (type === INCROWD_EVENTS.comment) {
+        Posts.Comments.tickle(payload.id);
+      }
+      else if (type === INCROWD_EVENTS.notification) {
+        console.log('notification')
       }
       else {
         $log.error('unknown push event dispatch', payload);
