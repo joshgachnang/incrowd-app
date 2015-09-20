@@ -1,8 +1,6 @@
 <ion-view view-title="{{ post.title }}">
   <ion-content class="padding">
-    <div ng-if="post.url" class="list card">
-      {{ post.url }}
-    </div>
+    <post></post>
     <div class="list comments">
       <div class="item comment" ng-repeat="comment in post.comment_set" layout="column">
         <a class="item-avatar" ng-href="/#/tab/user/{{ comment.user }}">

@@ -2,7 +2,7 @@
   "name": "SlasherTraxx",
   "app_id": "364e7843",
   "gulpStartupTasks": [
-    "sass",
+    "inject",
     "watch"
   ],
   "watchPatterns": [

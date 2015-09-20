@@ -4,10 +4,10 @@
 
     <h2><a ui-sref="tab.post({postId: post.id})">{{ post.title }}</a></h2>
 
-    <p>{{ post.user.username }}</p>
+    <p>{{ post.user.username }} | <span class="subdued">{{ post.category.name }}</span></p>
   </div>
 
-  <div class="item item-body">
+  <div class="item item-image">
     <a href="#" ng-if="post.type == 'image'" ng-click="window.open('{{ post.url }}', '_system', 'location=no');">
       <img class="full-image" ng-src="{{ post.url }}">
     </a>
@@ -15,7 +15,7 @@
       <a href="{{ post.url }}">{{ post.url }}</a>
     </p>
     <p>
-      <a href="#" class="subdued">{{ post.category.name }}</a>
+
       <!--<a href="#" class="subdued"></a>-->
     </p>
   </div>

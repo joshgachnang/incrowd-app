@@ -1,0 +1,35 @@
+<ion-view>
+  <ion-content class="padding">
+    <h1>Login</h1>
+
+    <div class="list">
+      <p>This is an invite only, private social network designed for small
+         groups of friends.</p>
+
+      <p>Our goal is to make a space for you to be yourself with your closest
+         circle of friends. Share inside jokes and memories. Post pics of your
+         new puppy and of your crazy nights. All without your mom or your boss
+         looking over your shoulder.</p>
+
+      <p>You must be invited by a current member to join. There's no waiting
+         list.</p>
+      <span class="tagline">Are you in?</span>
+
+      <form ng-submit="login(credentials)" novalidate>
+        <label class="item item-input">
+          <input type="text" ng-model="credentials.username" placeholder="Username">
+        </label>
+        <label class="item item-input">
+          <input type="password" ng-model="credentials.password" placeholder="Password">
+        </label>
+        <button class="button button-block button-positive">
+          Login
+        </button>
+        <button class="button button-block button-outline button-positive">
+          Reset Password
+        </button>
+      </form>
+    </div>
+  </ion-content>
+
+</ion-view>

@@ -1,6 +1,5 @@
 {
-  "name": "inCrowd",
-  "private": "true",
+  "name": "inCrowdApp",
   "devDependencies": {
     "ionic": "driftyco/ionic-bower#1.0.0-rc.5",
     "angular": "~1.3.x",

@@ -1,0 +1,56 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport", content="initial-scale=1", maximum-scale="1",
+         user-scalable="no", width="device-width")
+    meta(http-equiv="Content-Security-Policy",
+         content="default-src 'self' * 'unsafe-eval' 'unsafe-inline'")
+    title= inCrowd
+    // bower:css
+    link(rel='stylesheet', href='lib/angular-material/angular-material.css')
+    // endbower
+    //- styles:css
+    link(rel="stylesheet", href="www/css/icon.css")
+    link(rel="stylesheet", href="www/css/incrowd.css")
+    link(rel="stylesheet", href="www/css/ionic.app.css")
+    link(rel="stylesheet", href="www/css/ionic.app.min.css")
+    //- endinject
+    // bower:js
+    script(src='lib/angular-django-rest-resource/angular-django-rest-resource.js')
+    script(src='lib/angular/angular.js')
+    script(src='lib/ngCordova/dist/ng-cordova.js')
+    script(src='lib/angular-animate/angular-animate.js')
+    script(src='lib/angular-aria/angular-aria.js')
+    script(src='lib/angular-material/angular-material.js')
+    script(src='lib/hammerjs/hammer.js')
+    // endbower
+    //- angular:js
+    script(src="www/incrowd/config.js")
+    script(src="www/incrowd/utils.js")
+    script(src="www/incrowd/user.js")
+    script(src="www/incrowd/post.js")
+    script(src="www/incrowd/poll.js")
+    script(src="www/incrowd/notifications.js")
+    script(src="www/incrowd/media.js")
+    script(src="www/incrowd/invite.js")
+    script(src="www/incrowd/favicons.js")
+    script(src="www/incrowd/drr.js")
+    script(src="www/incrowd/drf_auth_service.js")
+    script(src="www/incrowd/decorator.js")
+    script(src="www/incrowd/chat.js")
+    script(src="www/incrowd/category.js")
+    script(src="www/js/services.js")
+    script(src="www/js/controllers.js")
+    script(src="www/js/app.js")
+    //- endinject
+  body(ng-app="starter")
+    // The nav bar that will be updated as we navigate between views.
+    ion-nav-bar.bar-stable
+      ion-nav-back-button
+    //
+      The views will be rendered in the <ion-nav-view> directive below
+      Templates are in the /templates folder (but you could also
+      have templates inline in this html file if you'd like).
+    ion-nav-view
+
